@@ -1,0 +1,38 @@
+# RetrievalInspector local development stack.
+# PostgreSQL with the pgvector extension + Ollama for local embeddings/LLM.
+#
+#   docker compose up -d
+#
+version: "3.9"
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: retrieval-inspector-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ri}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ri}
+      POSTGRES_DB: ${POSTGRES_DB:-retrieval_inspector}
+    ports:
+      # NOTE: host Postgres already claims 5432 on this machine, so we publish
+      # on 5433 to avoid the port collision.
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - ri_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ri} -d ${POSTGRES_DB:-retrieval_inspector}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: retrieval-inspector-ollama
+    volumes:
+      - ri_ollama:/root/.ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+
+volumes:
+  ri_pgdata:
+  ri_ollama:

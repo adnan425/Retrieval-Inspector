@@ -1,0 +1,55 @@
+{
+  "name": "retrieval-inspector",
+  "version": "0.1.0",
+  "description": "Inspect, debug, and improve your RAG retrieval pipeline.",
+  "type": "module",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "ri": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "ingest": "tsx src/cli.ts ingest",
+    "query": "tsx src/cli.ts query",
+    "serve": "tsx src/cli.ts serve",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "rag",
+    "retrieval",
+    "embedding",
+    "pgvector",
+    "ollama",
+    "llm",
+    "developer-tools",
+    "observability"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pg": "^8.13.1",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.11.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
