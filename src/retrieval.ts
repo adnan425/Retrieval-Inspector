@@ -1,5 +1,5 @@
 import { Chunk, Embedding, RetrievalStrategy, ScoredResult } from "./types.js";
-import { VectorStore } from "./store.js";
+import { MetadataFilter, VectorStore } from "./store.js";
 
 export interface RetrievalConfig {
   /** Path-based regex or substring for tokenizing keyword search. */
@@ -23,6 +23,7 @@ export async function retrieveStrategy(
     query: string;
     topK: number;
     rerankCandidatesMultiplier?: number;
+    filter?: MetadataFilter;
     config?: RetrievalConfig;
   },
 ): Promise<ScoredResult[]> {
@@ -32,7 +33,7 @@ export async function retrieveStrategy(
 
   switch (options.strategy) {
     case "vector": {
-      const hits = await store.similaritySearch(options.embedding, topK);
+      const hits = await store.similaritySearch(options.embedding, topK, options.filter);
       return hits.map((h, i) => ({
         chunk: h.chunk,
         score: h.score,
@@ -41,8 +42,8 @@ export async function retrieveStrategy(
       }));
     }
     case "keyword": {
-      const tokens = (options.config?.tokenize ?? defaultTokenize)(options.query);
-      const chunks = await store.allChunks();
+          const tokens = (options.config?.tokenize ?? defaultTokenize)(options.query);
+          const chunks = await store.allChunks(options.filter);
       const scored = chunks
         .map((chunk) => {
           const text = chunk.text.toLowerCase();
