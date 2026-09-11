@@ -97,6 +97,11 @@ export interface QueryOptions {
   strategies: RetrievalStrategy[];
   /** Rerank candidates = strategyK * this multiplier. */
   rerankCandidatesMultiplier?: number;
+  /**
+   * Restrict retrieval to rows whose metadata JSONB matches these
+   * key/value pairs (equality). Example: { department: "legal" }.
+   */
+  filter?: Record<string, string | number | boolean>;
 }
 
 /** A full answer plus its trace, returned by rag.query(). */
