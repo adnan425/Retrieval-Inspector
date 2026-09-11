@@ -16,9 +16,9 @@
     "ri": "./dist/cli.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "dev": "tsx src/cli.ts",
-    "start": "node dist/cli.js",
+    "build": "node init && tsc -p tsconfig.json",
+    "dev": "node init && tsx src/cli.ts",
+    "start": "node init && node dist/cli.js",
     "ingest": "tsx src/cli.ts ingest",
     "query": "tsx src/cli.ts query",
     "serve": "tsx src/cli.ts serve",
@@ -42,8 +42,9 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "pg": "^8.13.1",
-    "pdf-parse": "^1.1.1"
+    "node-fetch": "^3.3.2",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

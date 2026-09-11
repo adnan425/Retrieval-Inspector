@@ -70,12 +70,17 @@ export class Rag {
   }
 
   /** Chunk + embed + upsert an already-loaded document. */
-  private async ingestDoc(doc: Document): Promise<{ chunks: number; embeddings: number }> {
-    const chunks = chunkText(doc.content, doc.id, this.cfg.chunk);
-    const embeddings = await this.embed(chunks.map((c) => c.text));
-    await this.store.upsert(chunks, embeddings);
-    return { chunks: chunks.length, embeddings: embeddings.length };
-  }
+    private async ingestDoc(doc: Document): Promise<{ chunks: number; embeddings: number }> {
+      const chunks = chunkText(doc.content, doc.id, this.cfg.chunk).map((c) => ({
+        ...c,
+        // carry the document's source metadata onto each chunk so it is
+        // persisted to the JSONB column and available for metadata filtering
+        metadata: { ...(doc.metadata ?? {}), format: doc.format, title: doc.title },
+      }));
+      const embeddings = await this.embed(chunks.map((c) => c.text));
+      await this.store.upsert(chunks, embeddings);
+      return { chunks: chunks.length, embeddings: embeddings.length };
+    }
 
   /** Distinct document ids currently indexed. */
   async listDocs(): Promise<string[]> {
@@ -104,12 +109,13 @@ export class Rag {
       strategies.map(async (s) => ({
         strategy: s,
         results: await retrieveStrategy(this.store, {
-          strategy: s,
-          embedding,
-          query,
-          topK,
-          rerankCandidatesMultiplier: options.rerankCandidatesMultiplier,
-        }),
+                  strategy: s,
+                  embedding,
+                  query,
+                  topK,
+                  rerankCandidatesMultiplier: options.rerankCandidatesMultiplier,
+                  filter: options.filter,
+                }),
       })),
     );
 

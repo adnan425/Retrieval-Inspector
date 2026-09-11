@@ -4,6 +4,18 @@ import { Document } from "./types.js";
 
 export class LoaderError extends Error {}
 
+/** Attach source metadata so the pipeline (and filtering) can use it. */
+function sourceMeta(
+  name: string,
+  buf: { length: number },
+): Record<string, unknown> {
+  return {
+    source: name,
+    filename: basename(name),
+    byteSize: buf.length,
+  };
+}
+
 /**
  * Load a local file into a Document. Supports txt, md/markdown, html, and
  * pdf (PDF requires the optional pdf-parse dependency; text is best-effort).
@@ -41,7 +53,13 @@ export async function loadFile(path: string): Promise<Document> {
       throw new LoaderError(`Unsupported file type: ${ext}`);
   }
 
-  return { id: path, title, format: toFormat(ext), content };
+  return {
+    id: path,
+    title,
+    format: toFormat(ext),
+    content,
+    metadata: sourceMeta(path, buf),
+  };
 }
 
 function toFormat(ext: string): Document["format"] {
@@ -55,7 +73,10 @@ function toFormat(ext: string): Document["format"] {
  * Load an in-memory buffer as a Document (used by the HTTP upload path).
  * Same format handling as loadFile, minus the file read.
  */
-export async function loadBuffer(filename: string, data: Buffer): Promise<Document> {
+export async function loadBuffer(
+  filename: string,
+  data: Buffer,
+): Promise<Document> {
   const ext = extname(filename).toLowerCase();
   const title = basename(filename);
   let content: string;
@@ -84,5 +105,11 @@ export async function loadBuffer(filename: string, data: Buffer): Promise<Docume
     default:
       throw new LoaderError(`Unsupported file type: ${ext}`);
   }
-  return { id: filename, title, format: toFormat(ext), content };
+  return {
+    id: filename,
+    title,
+    format: toFormat(ext),
+    content,
+    metadata: sourceMeta(filename, data),
+  };
 }
