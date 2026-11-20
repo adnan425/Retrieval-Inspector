@@ -16,9 +16,9 @@
     "ri": "./dist/cli.js"
   },
   "scripts": {
-    "build": "node init && tsc -p tsconfig.json",
-    "dev": "node init && tsx src/cli.ts",
-    "start": "node init && node dist/cli.js",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
     "ingest": "tsx src/cli.ts ingest",
     "query": "tsx src/cli.ts query",
     "serve": "tsx src/cli.ts serve",
